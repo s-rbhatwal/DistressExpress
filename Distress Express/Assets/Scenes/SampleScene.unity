@@ -452,7 +452,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc763d0310f1c1744a7d5436ad449260, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InitialAcceleration: {x: 20, y: 0, z: 0}
+  InitialAcceleration: {x: 30, y: 0, z: 0}
   InitialGravityAcceleration: {x: 0, y: -10, z: 0}
   StartWithDirectionalConstraintOn: 1
   TrainHeightOverRail: 1
