@@ -13,46 +13,90 @@ public class motiontransformer : MonoBehaviour
     public int DebugBreakFinalEntryCount = 0;
     int DebugBreakCurrentEntryCount = 0;
     public TileType ThisTileType;
-    public GameObject LinearEndPointA;
-    public GameObject LinearEndPointB;
-    Collider ColliderPointA;
-    Collider ColliderPointB;
+    Vector3 ConstraintDirection;
+    Vector3 ConstraintNormalDirection;
+
+    public bool DebugDisplaysOn;
+    public bool TrainOnThisRail = false;
+    Vector3 CurrentTrainDirectionOnThisRail;
+    public GameObject DebugRailActiveIndication;
+
+
     // Start is called before the first frame update
     void Start()
     {
-        ColliderPointA = LinearEndPointA.GetComponent<Collider>();
-        ColliderPointB = LinearEndPointB.GetComponent<Collider>();
+        ConstraintDirection = transform.forward;
+        ConstraintNormalDirection = transform.up;
+    }
 
+    public Vector3 GetConstraintDirection()
+    {
+        return ConstraintDirection;
+    }
+
+    public Vector3 GetConstraintNormalDirection()
+    {
+        return ConstraintNormalDirection;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (DebugDisplaysOn)
+        {
+            DebugRailActiveIndication.SetActive(TrainOnThisRail);
+            DebugRailActiveIndication.transform.forward = CurrentTrainDirectionOnThisRail;
+        }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerExit(Collider other)
     {
-        if (DebugBreakFinalEntryCount > 0)
+       /* trainscript FoundTrain = other.gameObject.GetComponent<trainscript>();
+        if (FoundTrain)
         {
-            if (DebugBreakCurrentEntryCount == DebugBreakFinalEntryCount)
+            TrainOnThisRail = false;
+            if (FoundTrain.IsTrainOnThisRail(this))//if it has left and NOT entered a another rail, like a freefall
             {
-                Debug.Log("debug motion transformer reached");
+                FoundTrain.SetCurrentRail(null);
             }
-            DebugBreakCurrentEntryCount ++;
-        }
+        }*/
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
 
         trainscript FoundTrain = other.gameObject.GetComponent<trainscript>();
-        switch (ThisTileType)
+        if (FoundTrain)
         {
-            case TileType.Linear:
-                Vector3 NewDirection = LinearEndPointB.transform.position - LinearEndPointA.transform.position;
-                FoundTrain.SetDirectionalConstraint(NewDirection);
+            if (FoundTrain.IsTrainOnThisRail(this))//dont do the enter logic, we're already on this rail
+            {
+                return;
+            }
 
-                break;
+            bool TrainEnteringThisRail = false;
+            Vector3 TrainToRailVec = transform.position - FoundTrain.gameObject.transform.position;
+            Vector3 TrainDirectionOnThisRail = Vector3.Dot(TrainToRailVec, ConstraintDirection) * ConstraintDirection;
+            if (Vector3.Dot(TrainDirectionOnThisRail, FoundTrain.GetCurrentVelocity()) > 0)
+            {
+                CurrentTrainDirectionOnThisRail = Vector3.Normalize(TrainDirectionOnThisRail);
+                TrainEnteringThisRail = true;
+            }
 
-            case TileType.Radial:
-                break;
+            if (TrainEnteringThisRail)
+            {
+                FoundTrain.SetCurrentRail(this);
+                if (DebugBreakFinalEntryCount > 0)
+                {
+                    DebugBreakCurrentEntryCount++;
+                    if (DebugBreakCurrentEntryCount == DebugBreakFinalEntryCount)
+                    {
+                        Debug.Log("debug motion transformer reached");
+                    }
+                }
+
+            }
         }
     }
+
+
 }

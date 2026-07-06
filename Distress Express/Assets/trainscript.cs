@@ -8,16 +8,17 @@ public class trainscript : MonoBehaviour
     public Vector3 InitialAcceleration;
     public Vector3 InitialGravityAcceleration;
     public bool StartWithDirectionalConstraintOn = true;
+    motiontransformer CurrentRail = null;
 
     Vector3 CurrentGravityAcceleration;
     Vector3 CurrentAcceleration;
     Vector3 CurrentVelocity;
 
     Vector3 CurrentDirectionalConstraintUnitVec;
-    bool DirectionalConstaintOn = false;
 
     float AccelerationTimer = 0;
     float CurrentAccelerationDuration = 0;
+    public float TrainHeightOverRail = 0;
     // Start is called before the first frame update
     void Start()
     {
@@ -26,7 +27,6 @@ public class trainscript : MonoBehaviour
         CurrentAccelerationDuration = 0.5f;
         CurrentDirectionalConstraintUnitVec = Vector3.Normalize(InitialAcceleration);
         CurrentVelocity = new Vector3(0, 0, 0);
-        DirectionalConstaintOn = StartWithDirectionalConstraintOn;
     }
 
     // Update is called once per frame
@@ -40,24 +40,39 @@ public class trainscript : MonoBehaviour
         }
         CurrentVelocity += NetAccleration * (Time.deltaTime);
 
-        if (DirectionalConstaintOn)
+        if (CurrentRail)
         {
+            switch (CurrentRail.ThisTileType)
+            {
+                case TileType.Linear:
+                    SetDirectionalConstraint(CurrentRail.GetConstraintDirection());
+                    break;
+
+                case TileType.Radial:
+                    break;
+            }
+
             float VelocityInConstraintDir = Vector3.Dot(CurrentDirectionalConstraintUnitVec, CurrentVelocity);
             CurrentVelocity = VelocityInConstraintDir * CurrentDirectionalConstraintUnitVec;
+            transform.forward = Vector3.Normalize(CurrentVelocity);
         }
 
+
         transform.position += CurrentVelocity * (Time.deltaTime);
+
+        if (CurrentRail)//constrain position
+        {
+            Vector3 TrainToRailVec = CurrentRail.gameObject.transform.position - transform.position;
+            Vector3 PerpVecTrainToRail = Vector3.Dot(TrainToRailVec, CurrentRail.GetConstraintNormalDirection()) * CurrentRail.GetConstraintNormalDirection();//the vector in the direction of the rail's normal from the rail to the train 
+            transform.position += PerpVecTrainToRail;
+            transform.position -= Vector3.Normalize(PerpVecTrainToRail) * TrainHeightOverRail;
+        }
     }
 
-    public void SetDirectionalConstraint(Vector3 val)
+
+    void SetDirectionalConstraint(Vector3 val)
     {
-        DirectionalConstaintOn = true;
         CurrentDirectionalConstraintUnitVec = Vector3.Normalize(val);
-    }
-
-    public void TurnOffDirectionalConstraint()
-    {
-        DirectionalConstaintOn = false;
     }
 
     public void SetAcceleration(Vector3 val, float accel_duration)
@@ -66,4 +81,27 @@ public class trainscript : MonoBehaviour
         CurrentAccelerationDuration = accel_duration;
     }
 
+    public Vector3 GetCurrentVelocity()
+    {
+        return CurrentVelocity;
+    }
+
+    public void SetCurrentRail(motiontransformer rail)
+    {
+        if (CurrentRail)
+        {
+            CurrentRail.TrainOnThisRail = false;
+        }
+
+        CurrentRail = rail;
+        if (rail)
+        {
+            rail.TrainOnThisRail = true;
+        }
+    }
+
+    public bool IsTrainOnThisRail(motiontransformer rail)
+    {
+        return CurrentRail == rail;
+    }
 }
