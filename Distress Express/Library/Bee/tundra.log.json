@@ -363,6 +363,7 @@
 {"msg":"enqueueNode","enqueuedNodeAnnotation":"MovedFromExtractor-Combine Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll.mvfrm","enqueuedNodeIndex":310,"enqueueingNodeAnnotation":"Csc Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll (+2 others)","enqueueingNodeIndex":299}
 {"msg":"enqueueNode","enqueuedNodeAnnotation":"WriteText Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll.mvfrm.rsp","enqueuedNodeIndex":309,"enqueueingNodeAnnotation":"MovedFromExtractor-Combine Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll.mvfrm","enqueueingNodeIndex":310}
 {"msg":"enqueueNode","enqueuedNodeAnnotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb","enqueuedNodeIndex":364,"enqueueingNodeAnnotation":"ScriptAssemblies","enqueueingNodeIndex":6}
+<<<<<<< Updated upstream
 {"msg":"newNode","annotation":"WriteText Library/Bee/artifacts/1900b0aEDbg.dag/UnityEngine.TestRunner.rsp2","index":3}
 {"msg":"newNode","annotation":"WriteText Library/Bee/artifacts/1900b0aEDbg.dag/UnityEngine.TestRunner.UnityAdditionalFile.txt","index":1}
 {"msg":"newNode","annotation":"WriteText Library/Bee/artifacts/1900b0aEDbg.dag/UnityEngine.TestRunner.dll.mvfrm.rsp","index":118}
@@ -1086,3 +1087,14 @@
 {"msg":"inputSignatureChanged","annotation":"CopyFiles Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll","index":345,"changes":[{"key":"FileList","value":["Library\\Bee\\artifacts\\1900b0aEDbg.dag\\Unity.TextMeshPro.Editor.dll"],"oldvalue":[],"dependency":"explicit"}]}
 {"msg":"runNodeAction","annotation":"CopyFiles Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll","displayName":"Copying Unity.TextMeshPro.Editor.dll","index":345}
 {"msg":"noderesult","processed_node_count":362,"number_of_nodes_ever_queued":364,"annotation":"CopyFiles Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll","index":345,"exitcode":0,"outputfile":"Library\\ScriptAssemblies\\Unity.TextMeshPro.Editor.dll"}
+=======
+{"msg":"nodeRetryBuild","annotation":"Csc Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll (+2 others)","index":299}
+{"msg":"runNodeAction","annotation":"Csc Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll (+2 others)","displayName":"Compiling C# (Assembly-CSharp)","index":299}
+{"msg":"noderesult","processed_node_count":360,"number_of_nodes_ever_queued":364,"annotation":"Csc Library/Bee/artifacts/1900b0aEDbg.dag/Assembly-CSharp.dll (+2 others)","index":299,"exitcode":0,"outputfile":"Library\\Bee\\artifacts\\1900b0aEDbg.dag\\Assembly-CSharp.dll"}
+{"msg":"inputSignatureChanged","annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb","index":364,"changes":[{"key":"FileList","value":["Library\\Bee\\artifacts\\1900b0aEDbg.dag\\Assembly-CSharp.pdb"],"oldvalue":[],"dependency":"explicit"}]}
+{"msg":"runNodeAction","annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb","displayName":"Copying Assembly-CSharp.pdb","index":364}
+{"msg":"noderesult","processed_node_count":361,"number_of_nodes_ever_queued":364,"annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb","index":364,"exitcode":0,"outputfile":"Library\\ScriptAssemblies\\Assembly-CSharp.pdb"}
+{"msg":"inputSignatureChanged","annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll","index":363,"changes":[{"key":"FileList","value":["Library\\Bee\\artifacts\\1900b0aEDbg.dag\\Assembly-CSharp.dll"],"oldvalue":[],"dependency":"explicit"}]}
+{"msg":"runNodeAction","annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll","displayName":"Copying Assembly-CSharp.dll","index":363}
+{"msg":"noderesult","processed_node_count":362,"number_of_nodes_ever_queued":364,"annotation":"CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll","index":363,"exitcode":0,"outputfile":"Library\\ScriptAssemblies\\Assembly-CSharp.dll"}
+>>>>>>> Stashed changes
