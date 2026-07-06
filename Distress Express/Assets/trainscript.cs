@@ -54,9 +54,9 @@ public class trainscript : MonoBehaviour
 
             float VelocityInConstraintDir = Vector3.Dot(CurrentDirectionalConstraintUnitVec, CurrentVelocity);
             CurrentVelocity = VelocityInConstraintDir * CurrentDirectionalConstraintUnitVec;
-            transform.forward = Vector3.Normalize(CurrentVelocity);
         }
 
+        transform.forward = Vector3.Normalize(CurrentVelocity);
 
         transform.position += CurrentVelocity * (Time.deltaTime);
 

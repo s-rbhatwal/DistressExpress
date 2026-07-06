@@ -51,7 +51,7 @@ public class motiontransformer : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-       /* trainscript FoundTrain = other.gameObject.GetComponent<trainscript>();
+        trainscript FoundTrain = other.gameObject.GetComponent<trainscript>();
         if (FoundTrain)
         {
             TrainOnThisRail = false;
@@ -59,7 +59,7 @@ public class motiontransformer : MonoBehaviour
             {
                 FoundTrain.SetCurrentRail(null);
             }
-        }*/
+        }
     }
 
     private void OnTriggerStay(Collider other)
