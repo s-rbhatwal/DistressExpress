@@ -7,7 +7,6 @@ public class trainscript : MonoBehaviour
 
     public Vector3 InitialAcceleration;
     public Vector3 InitialGravityAcceleration;
-    public bool StartWithDirectionalConstraintOn = true;
     motiontransformer CurrentRail = null;
 
     Vector3 CurrentGravityAcceleration;
