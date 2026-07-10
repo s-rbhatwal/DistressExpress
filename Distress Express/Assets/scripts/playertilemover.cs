@@ -10,7 +10,7 @@ public enum TileMoverState
 }
 public class playertilemover : MonoBehaviour
 {
-    float TileSize = 5.0f;
+    public int TileSize = 5;
     selectabletile FocusedTile;
     TileMoverState State;
 
@@ -61,7 +61,7 @@ public class playertilemover : MonoBehaviour
             VertStep = -1.0f;
         }
 
-        Vector3 PotentialFuturePosition = transform.position +( new Vector3(HorizStep, 0, VertStep) * TileSize);
+        Vector3 PotentialFuturePosition = transform.position +( new Vector3(HorizStep, 0, VertStep) * (float)(TileSize));
 
         Vector3 FinalPosition = UpdateSelectedTile(PotentialFuturePosition);
 
@@ -69,6 +69,14 @@ public class playertilemover : MonoBehaviour
         if (State == TileMoverState.TileSelected)
         {
             FocusedTile.transform.position = FinalPosition;
+            if (Input.GetKeyDown("q"))
+            {
+                FocusedTile.transform.Rotate(0, 90, 0);
+            }
+            if (Input.GetKeyDown("e"))
+            {
+                FocusedTile.transform.Rotate(0, -90, 0);
+            }
         }
     }
 
