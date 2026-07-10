@@ -69,6 +69,14 @@ public class playertilemover : MonoBehaviour
         if (State == TileMoverState.TileSelected)
         {
             FocusedTile.transform.position = FinalPosition;
+            if (Input.GetKeyDown("q"))
+            {
+                FocusedTile.transform.Rotate(0, 90, 0);
+            }
+            if (Input.GetKeyDown("e"))
+            {
+                FocusedTile.transform.Rotate(0, 90, 0);
+            }
         }
     }
 
