@@ -157,6 +157,9 @@ MonoBehaviour:
   InitialAcceleration: {x: 30, y: 0, z: 0}
   InitialGravityAcceleration: {x: 0, y: -10, z: 0}
   TrainHeightOverRail: 1
+  CollisionCheckTargetLayer:
+    serializedVersion: 2
+    m_Bits: 1
 --- !u!114 &1661180152101530079
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169,3 +172,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2c5502fb886c614a8ac1d68e1bc87a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TempKillScript
+  m_YKillLevel: -15

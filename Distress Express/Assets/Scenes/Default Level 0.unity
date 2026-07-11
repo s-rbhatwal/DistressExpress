@@ -884,14 +884,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3014986417516708322, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3014986417516708322, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
-      propertyPath: InitialAcceleration.x
-      value: 35
-      objectReference: {fileID: 0}
     - target: {fileID: 5723079360496636058, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
       propertyPath: m_Name
       value: Train

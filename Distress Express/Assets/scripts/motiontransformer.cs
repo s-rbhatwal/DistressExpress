@@ -21,11 +21,15 @@ public class motiontransformer : MonoBehaviour
     public bool TrainOnThisRail = false;
     Vector3 CurrentTrainDirectionOnThisRail;
     public GameObject DebugRailActiveIndication;
+    public LayerMask CollisionCheckTargetLayer;
+
+    BoxCollider RailCollider;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        RailCollider = GetComponent<BoxCollider>();
     }
 
     public Vector3 GetConstraintDirection()
@@ -54,55 +58,40 @@ public class motiontransformer : MonoBehaviour
                 DebugRailActiveIndication.transform.forward = CurrentTrainDirectionOnThisRail;
             }
         }
+        RailCheckTrainEntryExit();
     }
 
-    private void OnTriggerExit(Collider other)
+    private void RailCheckTrainEntryExit()
     {
-        trainscript FoundTrain = other.gameObject.GetComponent<trainscript>();
-        if (FoundTrain)
+        Collider[] hitColliders = Physics.OverlapBox(RailCollider.bounds.center, RailCollider.bounds.extents , Quaternion.identity, CollisionCheckTargetLayer, QueryTriggerInteraction.Collide);
+        trainscript FoundTrain = null;
+        foreach (Collider col in hitColliders)
         {
-            TrainOnThisRail = false;
-            if (FoundTrain.IsTrainOnThisRail(this))//if it has left and NOT entered a another rail, like a freefall
+            FoundTrain = col.GetComponent<trainscript>();
+            if (FoundTrain != null)
             {
-                FoundTrain.SetCurrentRail(null);
+                FoundTrain = col.gameObject.GetComponent<trainscript>();
+                break;
             }
         }
-    }
 
-    private void OnTriggerStay(Collider other)
-    {
-
-        trainscript FoundTrain = other.gameObject.GetComponent<trainscript>();
-        if (FoundTrain)
+        ///////////////////////////
+        if (FoundTrain != null && !TrainOnThisRail)
         {
-            if (FoundTrain.IsTrainOnThisRail(this))//dont do the enter logic, we're already on this rail
-            {
-                return;
-            }
-
-            bool TrainEnteringThisRail = false;
             Vector3 TrainToRailVec = transform.position - FoundTrain.gameObject.transform.position;
             Vector3 TrainDirectionOnThisRail = Vector3.Dot(TrainToRailVec, ConstraintDirection) * ConstraintDirection;
             if (Vector3.Dot(TrainDirectionOnThisRail, FoundTrain.GetCurrentVelocity()) > 0)
             {
                 CurrentTrainDirectionOnThisRail = Vector3.Normalize(TrainDirectionOnThisRail);
-                TrainEnteringThisRail = true;
-            }
-
-            if (TrainEnteringThisRail)
-            {
+                TrainOnThisRail = true;//rail entered
                 FoundTrain.SetCurrentRail(this);
-                if (DebugBreakFinalEntryCount > 0)
-                {
-                    DebugBreakCurrentEntryCount++;
-                    if (DebugBreakCurrentEntryCount == DebugBreakFinalEntryCount)
-                    {
-                        Debug.Log("debug motion transformer reached");
-                    }
-                }
-
             }
         }
+        else if (FoundTrain == null && TrainOnThisRail)
+        {
+            TrainOnThisRail = false;
+        }
+
     }
 
 

@@ -18,6 +18,9 @@ public class trainscript : MonoBehaviour
     float AccelerationTimer = 0;
     float CurrentAccelerationDuration = 0;
     public float TrainHeightOverRail = 0;
+    BoxCollider TrainCollider;
+    public LayerMask CollisionCheckTargetLayer;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -26,11 +29,17 @@ public class trainscript : MonoBehaviour
         CurrentAccelerationDuration = 0.5f;
         CurrentDirectionalConstraintUnitVec = Vector3.Normalize(InitialAcceleration);
         CurrentVelocity = new Vector3(0, 0, 0);
+        TrainCollider = GetComponent<BoxCollider>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (ShouldTrainBeUnconstrained())
+        {
+            SetCurrentRail(null);
+        }
+
         Vector3 NetAccleration = CurrentGravityAcceleration;
         if (AccelerationTimer < CurrentAccelerationDuration)
         {
@@ -66,8 +75,23 @@ public class trainscript : MonoBehaviour
             transform.position += PerpVecTrainToRail;
             transform.position -= Vector3.Normalize(PerpVecTrainToRail) * TrainHeightOverRail;
         }
+
+     
     }
 
+    bool ShouldTrainBeUnconstrained()
+    {
+        Collider[] hitColliders = Physics.OverlapBox(TrainCollider.bounds.center, TrainCollider.bounds.extents, Quaternion.identity, CollisionCheckTargetLayer, QueryTriggerInteraction.Collide);
+
+        foreach (Collider col in hitColliders)
+        {
+            if (col.GetComponent<motiontransformer>()!= null)
+            {
+                return false;//a rail is touching this train
+            }
+        }
+        return true;
+    }
 
     void SetDirectionalConstraint(Vector3 val)
     {

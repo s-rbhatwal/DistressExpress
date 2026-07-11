@@ -14,12 +14,12 @@ public class playertilemover : MonoBehaviour
     selectabletile FocusedTile;
     TileMoverState State;
 
-    public float TileCheckRadius = 1.0f;
-    public LayerMask TileTargetLayer;
+    public LayerMask CollisionCheckTargetLayer;
+    BoxCollider TileMoverCollider;
     // Start is called before the first frame update
     void Start()
     {
-
+        TileMoverCollider = GetComponent<BoxCollider>();
     }
 
     // Update is called once per frame
@@ -82,7 +82,7 @@ public class playertilemover : MonoBehaviour
 
     Vector3 UpdateSelectedTile(Vector3 PotentialFuturePosition)
     {
-        Collider[] hitColliders = Physics.OverlapSphere(PotentialFuturePosition, TileCheckRadius, TileTargetLayer, QueryTriggerInteraction.Collide);
+        Collider[] hitColliders = Physics.OverlapBox(PotentialFuturePosition, TileMoverCollider.bounds.extents, Quaternion.identity, CollisionCheckTargetLayer, QueryTriggerInteraction.Collide);
 
         selectabletile FoundTile = null;
         foreach (Collider col in hitColliders) 
