@@ -7,8 +7,17 @@ public class DebugLoadScene : MonoBehaviour
 {
     public List<KeyCode> SceneSettingsKey;
     public List<String> SceneSettingsName;
-    // Update is called once per frame
-    void Update()
+
+    private trainscript script;
+
+	private void Start()
+	{
+        script = FindAnyObjectByType<trainscript>();
+        script.enabled = false;
+    }
+
+	// Update is called once per frame
+	void Update()
     {
         for (int i = 0; i < SceneSettingsKey.Count; i++)
         {
@@ -16,6 +25,11 @@ public class DebugLoadScene : MonoBehaviour
             {
                 SceneManager.LoadScene(SceneSettingsName[i]);
             }
+        }
+
+        if(Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            script.enabled = true;
         }
     }
 }
