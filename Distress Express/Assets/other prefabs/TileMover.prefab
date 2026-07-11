@@ -50,9 +50,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TileSize: 5
-  TileTargetLayer:
+  CollisionCheckTargetLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 1
 --- !u!65 &3917069388849751640
 BoxCollider:
   m_ObjectHideFlags: 0
