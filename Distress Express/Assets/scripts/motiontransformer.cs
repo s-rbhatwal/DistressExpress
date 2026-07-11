@@ -26,8 +26,6 @@ public class motiontransformer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        ConstraintDirection = transform.forward;
-        ConstraintNormalDirection = transform.up;
     }
 
     public Vector3 GetConstraintDirection()
@@ -43,6 +41,11 @@ public class motiontransformer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        //these can change when the player rotates the tile
+        ConstraintDirection = transform.forward;
+        ConstraintNormalDirection = transform.up;
+
         if (DebugDisplaysOn)
         {
             DebugRailActiveIndication.SetActive(TrainOnThisRail);
