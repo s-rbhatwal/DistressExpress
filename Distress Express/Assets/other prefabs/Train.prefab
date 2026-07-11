@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7708715357017033848}
   - component: {fileID: 6061117230690578344}
   - component: {fileID: 3014986417516708322}
+  - component: {fileID: 1661180152101530079}
   m_Layer: 0
   m_Name: Train
   m_TagString: Player
@@ -156,3 +157,15 @@ MonoBehaviour:
   InitialAcceleration: {x: 30, y: 0, z: 0}
   InitialGravityAcceleration: {x: 0, y: -10, z: 0}
   TrainHeightOverRail: 1
+--- !u!114 &1661180152101530079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5723079360496636058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2c5502fb886c614a8ac1d68e1bc87a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TempKillScript
