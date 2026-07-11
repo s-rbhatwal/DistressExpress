@@ -128,7 +128,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DebugBreakFinalEntryCount: 2
   ThisTileType: 0
-  DebugDisplaysOn: 1
+  DebugDisplaysOn: 0
   TrainOnThisRail: 0
   DebugRailActiveIndication: {fileID: 6524413669267373942}
   CollisionCheckTargetLayer:
