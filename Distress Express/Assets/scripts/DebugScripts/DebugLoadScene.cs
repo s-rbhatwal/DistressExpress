@@ -27,7 +27,7 @@ public class DebugLoadScene : MonoBehaviour
             }
         }
 
-        if(Input.GetKeyDown(KeyCode.KeypadEnter))
+        if(Input.GetKeyDown(KeyCode.Tab))
         {
             script.enabled = true;
         }
