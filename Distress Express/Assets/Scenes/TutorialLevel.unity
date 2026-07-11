@@ -565,6 +565,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TileMover
       objectReference: {fileID: 0}
+    - target: {fileID: 4392660412044298871, guid: 29caa3e4b88dca94783132a00532aded, type: 3}
+      propertyPath: CollisionCheckTargetLayer.m_Bits
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
