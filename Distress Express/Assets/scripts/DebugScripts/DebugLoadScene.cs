@@ -8,14 +8,15 @@ public class DebugLoadScene : MonoBehaviour
     public List<KeyCode> SceneSettingsKey;
     public List<String> SceneSettingsName;
 
-    private trainscript script = null;
-
+    private trainscript trainmovementscript = null;
+    private playertilemover playertilemover = null;
 	private void Start()
 	{
-        script = FindAnyObjectByType<trainscript>();
-        if(script != null)
+        trainmovementscript = FindAnyObjectByType<trainscript>();
+        playertilemover = FindAnyObjectByType<playertilemover>();
+        if (trainmovementscript != null)
         {
-			script.enabled = false;
+            trainmovementscript.enabled = false;
 		}
     }
 
@@ -29,8 +30,9 @@ public class DebugLoadScene : MonoBehaviour
 
 		if (Input.GetKeyDown(KeyCode.Tab))
 		{
-			script.enabled = true;
-		}
+            trainmovementscript.enabled = true;
+            playertilemover.enabled = false;
+        }
 
 		for (int i = 0; i < SceneSettingsKey.Count; i++)
         {
