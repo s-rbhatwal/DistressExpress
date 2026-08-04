@@ -10,8 +10,7 @@ public enum TileType
 }
 public class motiontransformer : MonoBehaviour
 {
-    public int DebugBreakFinalEntryCount = 0;
-    int DebugBreakCurrentEntryCount = 0;
+    public bool DebugPrintOnEntryVelocityCheck = false;
     public TileType ThisTileType;
     Vector3 ConstraintDirection;
     Vector3 ConstraintNormalDirection;
@@ -78,16 +77,27 @@ public class motiontransformer : MonoBehaviour
         ///////////////////////////
         if (FoundTrain != null && !TrainOnThisRail)
         {
-            Vector3 TrainToRailVec = transform.position - FoundTrain.gameObject.transform.position;
-            Vector3 TrainDirectionOnThisRail = Vector3.Dot(TrainToRailVec, ConstraintDirection) * ConstraintDirection;
-            if (Vector3.Dot(TrainDirectionOnThisRail, FoundTrain.GetCurrentVelocity()) > 0)
+            if (DebugPrintOnEntryVelocityCheck)
             {
+                Debug.Log("Checking entry velocity");
+            }
+            Vector3 TrainToRailVec = transform.position - FoundTrain.gameObject.transform.position;
+            float dot = Vector3.Dot(TrainToRailVec, ConstraintDirection);//will be zero on perpendicular situaions
+            Vector3 TrainDirectionOnThisRail = dot * ConstraintDirection;
+            float almost_zero = 1E-3f;// 1 * 10 ^ -3
+            bool entered_perpendicular = Mathf.Abs(dot) < almost_zero;
+            if (Vector3.Dot(TrainDirectionOnThisRail, FoundTrain.GetCurrentVelocity()) > 0 || entered_perpendicular)//On Train Entered: 
+            {
+                if (entered_perpendicular)
+                {
+                    TrainDirectionOnThisRail = ConstraintDirection;
+                }
                 CurrentTrainDirectionOnThisRail = Vector3.Normalize(TrainDirectionOnThisRail);
                 TrainOnThisRail = true;//rail entered
                 FoundTrain.SetCurrentRail(this);
             }
         }
-        else if (FoundTrain == null && TrainOnThisRail)
+        else if (FoundTrain == null && TrainOnThisRail)//On Train Exit:
         {
             TrainOnThisRail = false;
         }

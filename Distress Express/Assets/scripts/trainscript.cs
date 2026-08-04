@@ -8,7 +8,7 @@ public class trainscript : MonoBehaviour
     public Vector3 InitialAcceleration;
     public Vector3 InitialGravityAcceleration;
     motiontransformer CurrentRail = null;
-
+    DebugLoadScene SceneManager;
     Vector3 CurrentGravityAcceleration;
     Vector3 CurrentAcceleration;
     Vector3 CurrentVelocity;
@@ -20,7 +20,9 @@ public class trainscript : MonoBehaviour
     public float TrainHeightOverRail = 0;
     BoxCollider TrainCollider;
     public LayerMask CollisionCheckTargetLayer;
-
+    public float RestartAfterStuckWaitTime = 2.0f;
+    bool TrainIsStuck = false;
+    float TrainStuckTimer = 0.0f; 
     // Start is called before the first frame update
     void Start()
     {
@@ -30,6 +32,7 @@ public class trainscript : MonoBehaviour
         CurrentDirectionalConstraintUnitVec = Vector3.Normalize(InitialAcceleration);
         CurrentVelocity = new Vector3(0, 0, 0);
         TrainCollider = GetComponent<BoxCollider>();
+        SceneManager = FindAnyObjectByType<DebugLoadScene>();
     }
 
     // Update is called once per frame
@@ -64,19 +67,48 @@ public class trainscript : MonoBehaviour
             CurrentVelocity = VelocityInConstraintDir * CurrentDirectionalConstraintUnitVec;
         }
 
-        transform.forward = Vector3.Normalize(CurrentVelocity);
 
         transform.position += CurrentVelocity * (Time.deltaTime);
 
-        if (CurrentRail)//constrain position
+        if (CurrentRail)//constrain position <- check for perp issue
         {
-            Vector3 TrainToRailVec = CurrentRail.gameObject.transform.position - transform.position;
-            Vector3 PerpVecTrainToRail = Vector3.Dot(TrainToRailVec, CurrentRail.GetConstraintNormalDirection()) * CurrentRail.GetConstraintNormalDirection();//the vector in the direction of the rail's normal from the rail to the train 
-            transform.position += PerpVecTrainToRail;
-            transform.position -= Vector3.Normalize(PerpVecTrainToRail) * TrainHeightOverRail;
+            //we have to do a "closest point on the ray to the object" calculation here. the "ray" is the rail, and the object is the train.
+            //we're then going to move the train to that point found on the ray
+            Vector3 RayPoint = CurrentRail.gameObject.transform.position;//the point can be on point on the ray, and the ray here is the rail
+            Vector3 RayDirectionUnitVec = CurrentRail.GetConstraintDirection();
+            Vector3 RayPointToObject = transform.position - RayPoint;
+            float RayPointToObject_ProjectedOntoRay = Vector3.Dot(RayPointToObject, RayDirectionUnitVec);
+            transform.position = RayPoint + (RayPointToObject_ProjectedOntoRay * RayDirectionUnitVec);//set train to closest point on ray
+
+            //now that the train is on the rail, give it the height offset:
+            transform.position += CurrentRail.GetConstraintNormalDirection() * TrainHeightOverRail;
         }
 
-     
+        float almost_zero = 1E-3f;// 1 * 10 ^ -3
+        if (CurrentRail && CurrentVelocity.sqrMagnitude <= almost_zero) 
+        {
+            if (!TrainIsStuck)
+            {
+                TrainIsStuck = true;
+                TrainStuckTimer = 0.0f;
+            }
+            transform.forward = CurrentRail.GetConstraintDirection();
+        }
+        else 
+        {
+            TrainIsStuck = false;
+            transform.forward = Vector3.Normalize(CurrentVelocity);
+        }
+
+        if (TrainIsStuck)
+        {
+            TrainStuckTimer += Time.deltaTime;
+            if (TrainStuckTimer >= RestartAfterStuckWaitTime)
+            {
+                SceneManager.ReloadScene();
+            }
+        }
+
     }
 
     bool ShouldTrainBeUnconstrained()
