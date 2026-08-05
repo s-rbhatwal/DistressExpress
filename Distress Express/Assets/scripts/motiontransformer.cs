@@ -13,8 +13,10 @@ public class motiontransformer : MonoBehaviour
 {
     public bool DebugPrintCollisionInfo = false;
     public TileType ThisTileType;
-    Vector3 ConstraintDirection;
+    Vector3 ConstraintForwardDirection;
     Vector3 ConstraintNormalDirection;
+    Vector3 ConstraintRightDirection;
+
 
     public bool DebugDisplaysOn;
     [HideInInspector]
@@ -33,9 +35,9 @@ public class motiontransformer : MonoBehaviour
         SphereRailCollider = GetComponent<SphereCollider>();//quarter circle rail
     }
 
-    public Vector3 GetConstraintDirection()
+    public Vector3 GetConstraintForwardDirection()
     {
-        return ConstraintDirection;
+        return ConstraintForwardDirection;
     }
 
     public Vector3 GetConstraintNormalDirection()
@@ -48,8 +50,9 @@ public class motiontransformer : MonoBehaviour
     {
 
         //these can change when the player rotates the tile
-        ConstraintDirection = transform.forward;
+        ConstraintForwardDirection = transform.forward;
         ConstraintNormalDirection = transform.up;
+        ConstraintRightDirection = transform.right;
 
         if (DebugDisplaysOn)
         {
@@ -74,9 +77,18 @@ public class motiontransformer : MonoBehaviour
     {
         if (ThisTileType == TileType.Radial)
         {
-            return transform.position;
+            return SphereRailCollider.bounds.center;//should be the same as transform.position
         }
         return Vector3.zero;
+    }
+
+    public float GetCircleRadius()
+    {
+        if (ThisTileType == TileType.Radial)
+        {
+            return SphereRailCollider.bounds.extents.x;
+        }
+        return 0;
     }
 
     trainscript RailCheckTrainFound()
@@ -85,7 +97,16 @@ public class motiontransformer : MonoBehaviour
         switch (ThisTileType)
         {
             case (TileType.Linear):
+
+                //VERY important note about the following line: 
+                //BoxRailCollider.bounds.center and BoxRailCollider.bounds.extents are simply the the AXIS ALIGNED bounding box of the collider.
+                //so, if the box collider is rotated instead of axis aligned, BoxRailCollider.bounds.center and BoxRailCollider.bounds.extents are actually the dimensions of tight fitting axis aligned box that _contains_ the non-axis-aligned collider
                 Collider[]  CollidersHittingBox = Physics.OverlapBox(BoxRailCollider.bounds.center, BoxRailCollider.bounds.extents, Quaternion.identity, CollisionCheckTargetLayer, QueryTriggerInteraction.Collide);
+
+                if (DebugPrintCollisionInfo)
+                {
+                    UnityEngine.Debug.Log("Train colliding with this rail");
+                }
 
                 foreach (Collider col in CollidersHittingBox)
                 {
@@ -94,7 +115,7 @@ public class motiontransformer : MonoBehaviour
                     {
                         if (DebugPrintCollisionInfo) 
                         {
-                            //UnityEngine.Debug.Log("Train colliding with this rail"); 
+                            UnityEngine.Debug.Log("Train colliding with this rail"); 
                         }
                         //the dot product check stops the train from entering from under the rail
                         Vector3 RailToTrain = FoundTrain.transform.position - transform.position;
@@ -102,7 +123,7 @@ public class motiontransformer : MonoBehaviour
                         {
                             if (DebugPrintCollisionInfo)
                             {
-                               // UnityEngine.Debug.Log("Position check passed");
+                                UnityEngine.Debug.Log("Position check passed");
                             }
                             ReturnFoundTrain = col.gameObject.GetComponent<trainscript>();
                         }
@@ -112,7 +133,8 @@ public class motiontransformer : MonoBehaviour
                 break;
 
             case (TileType.Radial):
-                Collider[] CollidersHittingSphere = Physics.OverlapSphere(SphereRailCollider.center, SphereRailCollider.radius);
+                //SphereRailCollider.bounds here is the tight fitting box that _contains_ the sphere
+                Collider[] CollidersHittingSphere = Physics.OverlapSphere(SphereRailCollider.bounds.center, SphereRailCollider.bounds.extents.x);
                 foreach (Collider col in CollidersHittingSphere)
                 {
                     trainscript FoundTrain = col.GetComponent<trainscript>();
@@ -120,9 +142,17 @@ public class motiontransformer : MonoBehaviour
                     {
                         if (DebugPrintCollisionInfo)
                         {
-                            //UnityEngine.Debug.Log("Train colliding with this rail"); 
+                            UnityEngine.Debug.Log("Train colliding with this sphere"); 
                         }
-                        ReturnFoundTrain = col.gameObject.GetComponent<trainscript>();
+                        Vector3 CircleCenterToTrain = FoundTrain.transform.position - GetCircleCenter();
+                        if ((Vector3.Dot(CircleCenterToTrain, GetConstraintForwardDirection()) >= 0) && (Vector3.Dot(CircleCenterToTrain, ConstraintRightDirection )>= 0))
+                        { 
+                              ReturnFoundTrain = col.gameObject.GetComponent<trainscript>();
+                            if (DebugPrintCollisionInfo)
+                            {
+                                UnityEngine.Debug.Log("Train colliding with this curved rail");
+                            }
+                        }
                         break;
                     }
                 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public class trainscript : MonoBehaviour
@@ -48,7 +49,7 @@ public class trainscript : MonoBehaviour
     {
         if (ShouldTrainBeUnconstrained())
         {
-            UnityEngine.Debug.Log("train derailed");
+            //UnityEngine.Debug.Log("train currently derailed");
             SetCurrentRail(null);
         }
 
@@ -60,13 +61,13 @@ public class trainscript : MonoBehaviour
         }
         CurrentVelocity += NetAccleration * (Time.deltaTime);
 
-        if (CurrentRail)
+        if (CurrentRail)//constain velocity onto rail direction
         {
             switch (CurrentRail.ThisTileType)
             {
                 case TileType.Linear:
-                    float VelocityInConstraintDir = Vector3.Dot(CurrentRail.GetConstraintDirection(), CurrentVelocity);
-                    CurrentVelocity = VelocityInConstraintDir * CurrentRail.GetConstraintDirection();
+                    float VelocityInConstraintDir = Vector3.Dot(CurrentRail.GetConstraintForwardDirection(), CurrentVelocity);
+                    CurrentVelocity = VelocityInConstraintDir * CurrentRail.GetConstraintForwardDirection();
                     break;
 
                 case TileType.Radial:
@@ -84,7 +85,7 @@ public class trainscript : MonoBehaviour
 
         transform.position += CurrentVelocity * (Time.deltaTime);
 
-        if (CurrentRail)//constrain position <- check for perp issue
+        if (CurrentRail)//constrain position onto rail
         {
             switch (CurrentRail.ThisTileType)
             {
@@ -92,22 +93,28 @@ public class trainscript : MonoBehaviour
                     //we have to do a "closest point on the ray to the object" calculation here. the "ray" is the rail, and the object is the train.
                     //we're then going to move the train to that point found on the ray
                     Vector3 RayPoint = CurrentRail.gameObject.transform.position;//the point can be on point on the ray, and the ray here is the rail
-                    Vector3 RayDirectionUnitVec = CurrentRail.GetConstraintDirection();
+                    Vector3 RayDirectionUnitVec = CurrentRail.GetConstraintForwardDirection();
                     Vector3 RayPointToObject = transform.position - RayPoint;
                     float RayPointToObject_ProjectedOntoRay = Vector3.Dot(RayPointToObject, RayDirectionUnitVec);
                     transform.position = RayPoint + (RayPointToObject_ProjectedOntoRay * RayDirectionUnitVec);//set train to closest point on ray
                     break;
 
                 case TileType.Radial:
-                    //Vector3 UnitVecCircleCenterToTrain = Vector3.Normalize(transform.position - CurrentRail.GetCircleCenter());
-
+                    Vector3 SphereCenterToTrain = Vector3.Normalize(transform.position - CurrentRail.GetCircleCenter());
+                    Vector3 Flattened_SphereCenterToTrain = Vector3.ProjectOnPlane(SphereCenterToTrain, CurrentRail.GetConstraintNormalDirection());
+                    transform.position = CurrentRail.GetCircleCenter() + (CurrentRail.GetCircleRadius() * Vector3.Normalize(Flattened_SphereCenterToTrain));
                     break;
             }
-            
+
 
             //now that the train is on the rail, give it the height offset:
             transform.position += CurrentRail.GetConstraintNormalDirection() * TrainHeightOverRail;
+
+            UnityEngine.Debug.Log("Train velocity is " + CurrentVelocity.magnitude);
         }
+
+
+
 
         float almost_zero = 1E-3f;// 1 * 10 ^ -3
         if (CurrentRail && CurrentVelocity.sqrMagnitude <= almost_zero) 
@@ -117,7 +124,7 @@ public class trainscript : MonoBehaviour
                 TrainIsStuck = true;
                 TrainStuckTimer = 0.0f;
             }
-            transform.forward = CurrentRail.GetConstraintDirection();
+            transform.forward = CurrentRail.GetConstraintForwardDirection();
         }
         else 
         {
