@@ -12,8 +12,7 @@ public class trainscript : MonoBehaviour
     Vector3 CurrentGravityAcceleration;
     Vector3 CurrentAcceleration;
     Vector3 CurrentVelocity;
-
-    Vector3 CurrentDirectionalConstraintUnitVec;
+    int TouchingRailsCount = 0;//how many rails is the train currently touching? //will be 2 at the most
 
     float AccelerationTimer = 0;
     float CurrentAccelerationDuration = 0;
@@ -29,10 +28,19 @@ public class trainscript : MonoBehaviour
         CurrentAcceleration = InitialAcceleration;
         CurrentGravityAcceleration = InitialGravityAcceleration;
         CurrentAccelerationDuration = 0.5f;
-        CurrentDirectionalConstraintUnitVec = Vector3.Normalize(InitialAcceleration);
         CurrentVelocity = new Vector3(0, 0, 0);
         TrainCollider = GetComponent<BoxCollider>();
         SceneManager = FindAnyObjectByType<DebugLoadScene>();
+    }
+
+    public void IncrementTouchingRailCount()
+    {
+        TouchingRailsCount++;
+    }
+
+    public void DecrementTouchingRailCount()
+    {
+        TouchingRailsCount--;
     }
 
     // Update is called once per frame
@@ -40,6 +48,7 @@ public class trainscript : MonoBehaviour
     {
         if (ShouldTrainBeUnconstrained())
         {
+            UnityEngine.Debug.Log("train derailed");
             SetCurrentRail(null);
         }
 
@@ -56,15 +65,20 @@ public class trainscript : MonoBehaviour
             switch (CurrentRail.ThisTileType)
             {
                 case TileType.Linear:
-                    SetDirectionalConstraint(CurrentRail.GetConstraintDirection());
+                    float VelocityInConstraintDir = Vector3.Dot(CurrentRail.GetConstraintDirection(), CurrentVelocity);
+                    CurrentVelocity = VelocityInConstraintDir * CurrentRail.GetConstraintDirection();
                     break;
 
                 case TileType.Radial:
+                    Vector3 UnitVecCircleCenterToTrain = Vector3.Normalize(transform.position - CurrentRail.GetCircleCenter());
+                    float VelocityInRadiusDir  = Vector3.Dot(UnitVecCircleCenterToTrain, CurrentVelocity);
+                    CurrentVelocity -= (VelocityInRadiusDir * UnitVecCircleCenterToTrain);
+                    float VelocityInNormalDir = Vector3.Dot(CurrentRail.GetConstraintNormalDirection(), CurrentVelocity);
+                    CurrentVelocity -= (VelocityInNormalDir * CurrentRail.GetConstraintNormalDirection());
                     break;
             }
 
-            float VelocityInConstraintDir = Vector3.Dot(CurrentDirectionalConstraintUnitVec, CurrentVelocity);
-            CurrentVelocity = VelocityInConstraintDir * CurrentDirectionalConstraintUnitVec;
+
         }
 
 
@@ -72,13 +86,24 @@ public class trainscript : MonoBehaviour
 
         if (CurrentRail)//constrain position <- check for perp issue
         {
-            //we have to do a "closest point on the ray to the object" calculation here. the "ray" is the rail, and the object is the train.
-            //we're then going to move the train to that point found on the ray
-            Vector3 RayPoint = CurrentRail.gameObject.transform.position;//the point can be on point on the ray, and the ray here is the rail
-            Vector3 RayDirectionUnitVec = CurrentRail.GetConstraintDirection();
-            Vector3 RayPointToObject = transform.position - RayPoint;
-            float RayPointToObject_ProjectedOntoRay = Vector3.Dot(RayPointToObject, RayDirectionUnitVec);
-            transform.position = RayPoint + (RayPointToObject_ProjectedOntoRay * RayDirectionUnitVec);//set train to closest point on ray
+            switch (CurrentRail.ThisTileType)
+            {
+                case TileType.Linear:
+                    //we have to do a "closest point on the ray to the object" calculation here. the "ray" is the rail, and the object is the train.
+                    //we're then going to move the train to that point found on the ray
+                    Vector3 RayPoint = CurrentRail.gameObject.transform.position;//the point can be on point on the ray, and the ray here is the rail
+                    Vector3 RayDirectionUnitVec = CurrentRail.GetConstraintDirection();
+                    Vector3 RayPointToObject = transform.position - RayPoint;
+                    float RayPointToObject_ProjectedOntoRay = Vector3.Dot(RayPointToObject, RayDirectionUnitVec);
+                    transform.position = RayPoint + (RayPointToObject_ProjectedOntoRay * RayDirectionUnitVec);//set train to closest point on ray
+                    break;
+
+                case TileType.Radial:
+                    //Vector3 UnitVecCircleCenterToTrain = Vector3.Normalize(transform.position - CurrentRail.GetCircleCenter());
+
+                    break;
+            }
+            
 
             //now that the train is on the rail, give it the height offset:
             transform.position += CurrentRail.GetConstraintNormalDirection() * TrainHeightOverRail;
@@ -113,7 +138,7 @@ public class trainscript : MonoBehaviour
 
     bool ShouldTrainBeUnconstrained()
     {
-        Collider[] hitColliders = Physics.OverlapBox(TrainCollider.bounds.center, TrainCollider.bounds.extents, Quaternion.identity, CollisionCheckTargetLayer, QueryTriggerInteraction.Collide);
+        /*Collider[] hitColliders = Physics.OverlapBox(TrainCollider.bounds.center, TrainCollider.bounds.extents, Quaternion.identity, CollisionCheckTargetLayer, QueryTriggerInteraction.Collide);
 
         foreach (Collider col in hitColliders)
         {
@@ -121,13 +146,15 @@ public class trainscript : MonoBehaviour
             {
                 return false;//a rail is touching this train
             }
+        }*/
+        if (TouchingRailsCount == 0)
+        {
+            return true;
         }
-        return true;
-    }
-
-    void SetDirectionalConstraint(Vector3 val)
-    {
-        CurrentDirectionalConstraintUnitVec = Vector3.Normalize(val);
+        else 
+        {
+            return false;
+        }
     }
 
     public void SetAcceleration(Vector3 val, float accel_duration)
@@ -143,16 +170,7 @@ public class trainscript : MonoBehaviour
 
     public void SetCurrentRail(motiontransformer rail)
     {
-        if (CurrentRail)
-        {
-            CurrentRail.TrainOnThisRail = false;
-        }
-
         CurrentRail = rail;
-        if (rail)
-        {
-            rail.TrainOnThisRail = true;
-        }
     }
 
     public bool IsTrainOnThisRail(motiontransformer rail)

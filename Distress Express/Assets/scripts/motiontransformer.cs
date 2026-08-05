@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 
@@ -10,25 +11,26 @@ public enum TileType
 }
 public class motiontransformer : MonoBehaviour
 {
-    public bool DebugPrintOnEntryVelocityCheck = false;
+    public bool DebugPrintCollisionInfo = false;
     public TileType ThisTileType;
     Vector3 ConstraintDirection;
     Vector3 ConstraintNormalDirection;
 
     public bool DebugDisplaysOn;
     [HideInInspector]
-    public bool TrainOnThisRail = false;
-    Vector3 CurrentTrainDirectionOnThisRail;
     public GameObject DebugRailActiveIndication;
     public LayerMask CollisionCheckTargetLayer;
 
-    BoxCollider RailCollider;
+    BoxCollider BoxRailCollider;
+    SphereCollider SphereRailCollider;
+    trainscript TrainTouchingThisRail;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        RailCollider = GetComponent<BoxCollider>();
+        BoxRailCollider = GetComponent<BoxCollider>();//linear rail
+        SphereRailCollider = GetComponent<SphereCollider>();//quarter circle rail
     }
 
     public Vector3 GetConstraintDirection()
@@ -51,55 +53,108 @@ public class motiontransformer : MonoBehaviour
 
         if (DebugDisplaysOn)
         {
-            DebugRailActiveIndication.SetActive(TrainOnThisRail);
-            if (CurrentTrainDirectionOnThisRail != Vector3.zero)
+            if (TrainTouchingThisRail != null)
             {
-                DebugRailActiveIndication.transform.forward = CurrentTrainDirectionOnThisRail;
+                DebugRailActiveIndication.SetActive(true);
             }
+            else
+            {
+                DebugRailActiveIndication.SetActive(false);
+
+            }
+            /*if (DebugDisplayCurrentTrainDirectionOnThisRail != Vector3.zero)
+            {
+                DebugRailActiveIndication.transform.forward = DebugDisplayCurrentTrainDirectionOnThisRail;
+            }*/
         }
         RailCheckTrainEntryExit();
     }
 
-    private void RailCheckTrainEntryExit()
+    public Vector3 GetCircleCenter()
     {
-        Collider[] hitColliders = Physics.OverlapBox(RailCollider.bounds.center, RailCollider.bounds.extents , Quaternion.identity, CollisionCheckTargetLayer, QueryTriggerInteraction.Collide);
-        trainscript FoundTrain = null;
-        foreach (Collider col in hitColliders)
+        if (ThisTileType == TileType.Radial)
         {
-            FoundTrain = col.GetComponent<trainscript>();
-            if (FoundTrain != null)
-            {
-                FoundTrain = col.gameObject.GetComponent<trainscript>();
+            return transform.position;
+        }
+        return Vector3.zero;
+    }
+
+    trainscript RailCheckTrainFound()
+    {
+        trainscript ReturnFoundTrain = null;
+        switch (ThisTileType)
+        {
+            case (TileType.Linear):
+                Collider[]  CollidersHittingBox = Physics.OverlapBox(BoxRailCollider.bounds.center, BoxRailCollider.bounds.extents, Quaternion.identity, CollisionCheckTargetLayer, QueryTriggerInteraction.Collide);
+
+                foreach (Collider col in CollidersHittingBox)
+                {
+                    trainscript FoundTrain = col.GetComponent<trainscript>();
+                    if (FoundTrain != null)
+                    {
+                        if (DebugPrintCollisionInfo) 
+                        {
+                            //UnityEngine.Debug.Log("Train colliding with this rail"); 
+                        }
+                        //the dot product check stops the train from entering from under the rail
+                        Vector3 RailToTrain = FoundTrain.transform.position - transform.position;
+                        if (Vector3.Dot(RailToTrain, ConstraintNormalDirection) >= 0)
+                        {
+                            if (DebugPrintCollisionInfo)
+                            {
+                               // UnityEngine.Debug.Log("Position check passed");
+                            }
+                            ReturnFoundTrain = col.gameObject.GetComponent<trainscript>();
+                        }
+                        break;
+                    }
+                }
                 break;
-            }
+
+            case (TileType.Radial):
+                Collider[] CollidersHittingSphere = Physics.OverlapSphere(SphereRailCollider.center, SphereRailCollider.radius);
+                foreach (Collider col in CollidersHittingSphere)
+                {
+                    trainscript FoundTrain = col.GetComponent<trainscript>();
+                    if (FoundTrain != null)
+                    {
+                        if (DebugPrintCollisionInfo)
+                        {
+                            //UnityEngine.Debug.Log("Train colliding with this rail"); 
+                        }
+                        ReturnFoundTrain = col.gameObject.GetComponent<trainscript>();
+                        break;
+                    }
+                }
+                break;
         }
 
+
+        return ReturnFoundTrain;
+    }
+    private void RailCheckTrainEntryExit()
+    {
+        trainscript FoundTrain = RailCheckTrainFound();
         ///////////////////////////
-        if (FoundTrain != null && !TrainOnThisRail)
+        if (FoundTrain != null && TrainTouchingThisRail == null)// On Train Enter
         {
-            if (DebugPrintOnEntryVelocityCheck)
+            if (DebugPrintCollisionInfo)
             {
-                Debug.Log("Checking entry velocity");
+                UnityEngine.Debug.Log("entered rail");
             }
-            Vector3 TrainToRailVec = transform.position - FoundTrain.gameObject.transform.position;
-            float dot = Vector3.Dot(TrainToRailVec, ConstraintDirection);//will be zero on perpendicular situaions
-            Vector3 TrainDirectionOnThisRail = dot * ConstraintDirection;
-            float almost_zero = 1E-3f;// 1 * 10 ^ -3
-            bool entered_perpendicular = Mathf.Abs(dot) < almost_zero;
-            if (Vector3.Dot(TrainDirectionOnThisRail, FoundTrain.GetCurrentVelocity()) > 0 || entered_perpendicular)//On Train Entered: 
-            {
-                if (entered_perpendicular)
-                {
-                    TrainDirectionOnThisRail = ConstraintDirection;
-                }
-                CurrentTrainDirectionOnThisRail = Vector3.Normalize(TrainDirectionOnThisRail);
-                TrainOnThisRail = true;//rail entered
-                FoundTrain.SetCurrentRail(this);
-            }
+            FoundTrain.IncrementTouchingRailCount();
+            TrainTouchingThisRail = FoundTrain;
+            FoundTrain.SetCurrentRail(this);
         }
-        else if (FoundTrain == null && TrainOnThisRail)//On Train Exit:
+        else if (FoundTrain == null && TrainTouchingThisRail != null)//On Train Exit:
         {
-            TrainOnThisRail = false;
+            if (DebugPrintCollisionInfo)
+            {
+                UnityEngine.Debug.Log("exited rail");
+            }
+            TrainTouchingThisRail.DecrementTouchingRailCount();
+            TrainTouchingThisRail = null;
+            //dont set current rail to null, because that's the trains job, and it should only happen when the train's TouchingRailCount = 0
         }
 
     }
