@@ -7,6 +7,7 @@ public class trainscript : MonoBehaviour
 {
 
     public Vector3 InitialJerk;
+    public float InitialJerkDuration;
     public Vector3 InitialGravityAcceleration;
 
     motiontransformer CurrentRail = null;
@@ -29,7 +30,7 @@ public class trainscript : MonoBehaviour
     void Start()
     {
         CurrentGravityAcceleration = InitialGravityAcceleration;
-        SetJerk(InitialJerk, 0.5f);
+        SetJerk(InitialJerk, InitialJerkDuration);
         CurrentVelocity = new Vector3(0, 0, 0);
         TrainCollider = GetComponent<BoxCollider>();
         SceneManager = FindAnyObjectByType<DebugLoadScene>();
