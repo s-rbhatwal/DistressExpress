@@ -3364,7 +3364,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2851053907402665618, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.82
+      value: 0.38
       objectReference: {fileID: 0}
     - target: {fileID: 2851053907402665618, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3372,7 +3372,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2851053907402665618, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 2851053907402665618, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3401,6 +3401,10 @@ PrefabInstance:
     - target: {fileID: 2851053907402665618, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3014986417516708322, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
+      propertyPath: InitialJerk.x
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 3014986417516708322, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
       propertyPath: TrainHeightOverRail

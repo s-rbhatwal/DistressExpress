@@ -6,17 +6,19 @@ using UnityEngine;
 public class trainscript : MonoBehaviour
 {
 
-    public Vector3 InitialAcceleration;
+    public Vector3 InitialJerk;
     public Vector3 InitialGravityAcceleration;
+
     motiontransformer CurrentRail = null;
     DebugLoadScene SceneManager;
+    Vector3 CurrentJerk;
     Vector3 CurrentGravityAcceleration;
     Vector3 CurrentAcceleration;
     Vector3 CurrentVelocity;
     int TouchingRailsCount = 0;//how many rails is the train currently touching? //will be 2 at the most
 
-    float AccelerationTimer = 0;
-    float CurrentAccelerationDuration = 0;
+    float TimeSinceCurrentJerkStarted = 0;
+    float CurrentJerkDuration = 0;
     public float TrainHeightOverRail = 0;
     BoxCollider TrainCollider;
     public LayerMask CollisionCheckTargetLayer;
@@ -26,9 +28,8 @@ public class trainscript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        CurrentAcceleration = InitialAcceleration;
         CurrentGravityAcceleration = InitialGravityAcceleration;
-        CurrentAccelerationDuration = 0.5f;
+        SetJerk(InitialJerk, 0.5f);
         CurrentVelocity = new Vector3(0, 0, 0);
         TrainCollider = GetComponent<BoxCollider>();
         SceneManager = FindAnyObjectByType<DebugLoadScene>();
@@ -52,13 +53,14 @@ public class trainscript : MonoBehaviour
             //UnityEngine.Debug.Log("train currently derailed");
             SetCurrentRail(null);
         }
-
         Vector3 NetAccleration = CurrentGravityAcceleration;
-        if (AccelerationTimer < CurrentAccelerationDuration)
+        if (TimeSinceCurrentJerkStarted < CurrentJerkDuration)
         {
-            NetAccleration += CurrentAcceleration;
-            AccelerationTimer += Time.deltaTime;
+            CurrentAcceleration += (CurrentJerk * (Time.deltaTime));
+            TimeSinceCurrentJerkStarted += Time.deltaTime;
+            NetAccleration += CurrentAcceleration; //abit of trickery here: we're only accelerating if we're also jerking. this way we're not stuck with constant acceleration.
         }
+
         CurrentVelocity += NetAccleration * (Time.deltaTime);
 
         if (CurrentRail)//constain velocity onto rail direction
@@ -164,10 +166,11 @@ public class trainscript : MonoBehaviour
         }
     }
 
-    public void SetAcceleration(Vector3 val, float accel_duration)
+    public void SetJerk(Vector3 val, float duration)
     {
-        CurrentAcceleration = val;
-        CurrentAccelerationDuration = accel_duration;
+        TimeSinceCurrentJerkStarted = 0.0f;
+        CurrentJerk = val;
+        CurrentJerkDuration = duration;
     }
 
     public Vector3 GetCurrentVelocity()
