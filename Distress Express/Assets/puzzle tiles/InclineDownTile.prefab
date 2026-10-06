@@ -306,14 +306,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85ce468c395e0a5408273aa5051d4d15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DebugBreakFinalEntryCount: 2
+  DebugPrintCollisionInfo: 0
   ThisTileType: 0
   DebugDisplaysOn: 0
-  TrainOnThisRail: 0
   DebugRailActiveIndication: {fileID: 6524413669267373942}
   CollisionCheckTargetLayer:
     serializedVersion: 2
     m_Bits: 1
+  SelectableTile: {fileID: 5724135304321370864}
 --- !u!1 &3014060411605915321
 GameObject:
   m_ObjectHideFlags: 0
@@ -787,6 +787,8 @@ MonoBehaviour:
   HoverMaterial: {fileID: 2100000, guid: c975ecc6f79fe184bb096f4785f0eedc, type: 2}
   DefaultMaterial: {fileID: 2100000, guid: dd00d42c75840004e9f500e7da604d08, type: 2}
   SelectMaterial: {fileID: 2100000, guid: 29426f4b01f87c948b6df59c9986ea30, type: 2}
+  TrainJerk: {x: 0, y: 0, z: 0}
+  TrainJerkDuration: 0
 --- !u!1 &8207879151651755468
 GameObject:
   m_ObjectHideFlags: 0

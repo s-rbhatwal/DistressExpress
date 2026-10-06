@@ -22,17 +22,19 @@ public class motiontransformer : MonoBehaviour
     [HideInInspector]
     public GameObject DebugRailActiveIndication;
     public LayerMask CollisionCheckTargetLayer;
+    public GameObject SelectableTile;
+    selectabletile RailTile;
 
     BoxCollider BoxRailCollider;
     SphereCollider SphereRailCollider;
     trainscript TrainTouchingThisRail;
-
 
     // Start is called before the first frame update
     void Start()
     {
         BoxRailCollider = GetComponent<BoxCollider>();//linear rail
         SphereRailCollider = GetComponent<SphereCollider>();//quarter circle rail
+        RailTile = SelectableTile.GetComponent<selectabletile>();
     }
 
     public Vector3 GetConstraintForwardDirection()
@@ -101,7 +103,7 @@ public class motiontransformer : MonoBehaviour
                 //VERY important note about the following line: 
                 //BoxRailCollider.bounds.center and BoxRailCollider.bounds.extents are simply the the AXIS ALIGNED bounding box of the collider.
                 //so, if the box collider is rotated instead of axis aligned, BoxRailCollider.bounds.center and BoxRailCollider.bounds.extents are actually the dimensions of tight fitting axis aligned box that _contains_ the non-axis-aligned collider
-                Collider[]  CollidersHittingBox = Physics.OverlapBox(BoxRailCollider.bounds.center, BoxRailCollider.bounds.extents, Quaternion.identity, CollisionCheckTargetLayer, QueryTriggerInteraction.Collide);
+                Collider[] CollidersHittingBox = Physics.OverlapBox(BoxRailCollider.bounds.center, BoxRailCollider.bounds.extents, Quaternion.identity, CollisionCheckTargetLayer, QueryTriggerInteraction.Collide);
 
                 if (DebugPrintCollisionInfo)
                 {
@@ -113,9 +115,9 @@ public class motiontransformer : MonoBehaviour
                     trainscript FoundTrain = col.GetComponent<trainscript>();
                     if (FoundTrain != null)
                     {
-                        if (DebugPrintCollisionInfo) 
+                        if (DebugPrintCollisionInfo)
                         {
-                            UnityEngine.Debug.Log("Train colliding with this rail"); 
+                            UnityEngine.Debug.Log("Train colliding with this rail");
                         }
                         //the dot product check stops the train from entering from under the rail
                         Vector3 RailToTrain = FoundTrain.transform.position - transform.position;
@@ -142,12 +144,12 @@ public class motiontransformer : MonoBehaviour
                     {
                         if (DebugPrintCollisionInfo)
                         {
-                            UnityEngine.Debug.Log("Train colliding with this sphere"); 
+                            UnityEngine.Debug.Log("Train colliding with this sphere");
                         }
                         Vector3 CircleCenterToTrain = FoundTrain.transform.position - GetCircleCenter();
-                        if ((Vector3.Dot(CircleCenterToTrain, GetConstraintForwardDirection()) >= 0) && (Vector3.Dot(CircleCenterToTrain, ConstraintRightDirection )>= 0))
-                        { 
-                              ReturnFoundTrain = col.gameObject.GetComponent<trainscript>();
+                        if ((Vector3.Dot(CircleCenterToTrain, GetConstraintForwardDirection()) >= 0) && (Vector3.Dot(CircleCenterToTrain, ConstraintRightDirection) >= 0))
+                        {
+                            ReturnFoundTrain = col.gameObject.GetComponent<trainscript>();
                             if (DebugPrintCollisionInfo)
                             {
                                 UnityEngine.Debug.Log("Train colliding with this curved rail");
@@ -174,6 +176,10 @@ public class motiontransformer : MonoBehaviour
             }
             FoundTrain.IncrementTouchingRailCount();
             TrainTouchingThisRail = FoundTrain;
+            float VelDotRail = Vector3.Dot(ConstraintForwardDirection, FoundTrain.GetCurrentVelocity());
+            bool TrainMovingForward = (VelDotRail >= 0);
+            bool TrainAtStandStill = (VelDotRail == 0);
+            OnTrainEnterRail(TrainMovingForward, TrainAtStandStill, FoundTrain);
             FoundTrain.SetCurrentRail(this);
         }
         else if (FoundTrain == null && TrainTouchingThisRail != null)//On Train Exit:
@@ -185,6 +191,20 @@ public class motiontransformer : MonoBehaviour
             TrainTouchingThisRail.DecrementTouchingRailCount();
             TrainTouchingThisRail = null;
             //dont set current rail to null, because that's the trains job, and it should only happen when the train's TouchingRailCount = 0
+        }
+
+    }
+
+    private void OnTrainEnterRail(bool TrainMovingForward, bool TrainAtStandStill, trainscript FoundTrain)
+    {
+        if (TrainAtStandStill == false && Mathf.Abs(RailTile.TrainVelocityIncrease) > 0)
+        {
+            Vector3 TrainMoveDirection = ConstraintForwardDirection;
+            if (!TrainMovingForward) //this means its moving backward
+            {
+                TrainMoveDirection *= -1.0f;
+            }
+            FoundTrain.SingleFrameAcclerateByVal(RailTile.TrainVelocityIncrease * TrainMoveDirection);
         }
 
     }

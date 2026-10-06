@@ -74,6 +74,8 @@ MonoBehaviour:
   HoverMaterial: {fileID: 2100000, guid: 65cc8198c3437994aa9d19e4f8e0c287, type: 2}
   DefaultMaterial: {fileID: 2100000, guid: 714c5127b9d259b489e98252112a95bb, type: 2}
   SelectMaterial: {fileID: 2100000, guid: 3492cc9ebf9635945a462b17eba8cc1a, type: 2}
+  TrainJerk: {x: 0, y: 0, z: 0}
+  TrainJerkDuration: 0
 --- !u!1 &2287963944986219230
 GameObject:
   m_ObjectHideFlags: 0
@@ -156,6 +158,7 @@ MonoBehaviour:
   CollisionCheckTargetLayer:
     serializedVersion: 2
     m_Bits: 1
+  SelectableTile: {fileID: 45796323722733660}
 --- !u!1 &4335080278930637466
 GameObject:
   m_ObjectHideFlags: 0

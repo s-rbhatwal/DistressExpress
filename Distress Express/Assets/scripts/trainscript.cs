@@ -25,7 +25,10 @@ public class trainscript : MonoBehaviour
     public LayerMask CollisionCheckTargetLayer;
     public float RestartAfterStuckWaitTime = 2.0f;
     bool TrainIsStuck = false;
-    float TrainStuckTimer = 0.0f; 
+    float TrainStuckTimer = 0.0f;
+    bool InstaneousAccelerationThisFrame = false;
+    Vector3 InstantaneousAcceleration;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -47,7 +50,7 @@ public class trainscript : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (ShouldTrainBeUnconstrained())
         {
@@ -61,8 +64,23 @@ public class trainscript : MonoBehaviour
             TimeSinceCurrentJerkStarted += Time.deltaTime;
             NetAccleration += CurrentAcceleration; //abit of trickery here: we're only accelerating if we're also jerking. this way we're not stuck with constant acceleration.
         }
+        else
+        {
+            CurrentAcceleration = Vector3.zero;//reset this
+        }
 
         CurrentVelocity += NetAccleration * (Time.deltaTime);
+        if (InstaneousAccelerationThisFrame)
+        {
+            Vector3 newvelocity = CurrentVelocity + InstantaneousAcceleration;
+            if (Vector3.Dot(newvelocity, CurrentVelocity)< 0)//this checks if the instanteous velocity reverses the train direction
+            { 
+                //just dont let the train reverse lmao
+                newvelocity = Vector3.zero;
+            }
+            CurrentVelocity = newvelocity;
+            InstaneousAccelerationThisFrame = false;
+        }
 
         if (CurrentRail)//constain velocity onto rail direction
         {
@@ -114,9 +132,8 @@ public class trainscript : MonoBehaviour
             transform.position += CurrentRail.GetConstraintNormalDirection() * TrainHeightOverRail;
 
             UnityEngine.Debug.Log("Train velocity is " + CurrentVelocity.magnitude);
+            UnityEngine.Debug.Log("time.delta time is " + Time.deltaTime);
         }
-
-
 
 
         float almost_zero = 1E-3f;// 1 * 10 ^ -3
@@ -167,13 +184,18 @@ public class trainscript : MonoBehaviour
         }
     }
 
-    public void SetJerk(Vector3 val, float duration)
+    void SetJerk(Vector3 val, float duration)
     {
         TimeSinceCurrentJerkStarted = 0.0f;
         CurrentJerk = val;
         CurrentJerkDuration = duration;
     }
 
+    public void SingleFrameAcclerateByVal(Vector3 val)
+    {
+        InstaneousAccelerationThisFrame = true;
+        InstantaneousAcceleration = val;
+    }
     public Vector3 GetCurrentVelocity()
     {
         return CurrentVelocity;

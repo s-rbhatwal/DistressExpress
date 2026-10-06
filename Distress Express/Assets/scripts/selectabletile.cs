@@ -11,6 +11,8 @@ public class selectabletile : MonoBehaviour
     public Material SelectMaterial;
     playertilemover TileMover;
 
+    public float TrainVelocityIncrease;
+
     // Start is called before the first frame update
     void Start()
     {
