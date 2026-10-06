@@ -60,8 +60,8 @@ public class trainscript : MonoBehaviour
         Vector3 NetAccleration = CurrentGravityAcceleration;
         if (TimeSinceCurrentJerkStarted < CurrentJerkDuration)
         {
-            CurrentAcceleration += (CurrentJerk * (Time.deltaTime));
-            TimeSinceCurrentJerkStarted += Time.deltaTime;
+            CurrentAcceleration += (CurrentJerk * (Time.fixedDeltaTime));
+            TimeSinceCurrentJerkStarted += Time.fixedDeltaTime;
             NetAccleration += CurrentAcceleration; //abit of trickery here: we're only accelerating if we're also jerking. this way we're not stuck with constant acceleration.
         }
         else
@@ -69,7 +69,7 @@ public class trainscript : MonoBehaviour
             CurrentAcceleration = Vector3.zero;//reset this
         }
 
-        CurrentVelocity += NetAccleration * (Time.deltaTime);
+        CurrentVelocity += NetAccleration * (Time.fixedDeltaTime);
         if (InstaneousAccelerationThisFrame)
         {
             Vector3 newvelocity = CurrentVelocity + InstantaneousAcceleration;
@@ -104,7 +104,7 @@ public class trainscript : MonoBehaviour
         }
 
 
-        transform.position += CurrentVelocity * (Time.deltaTime);
+        transform.position += CurrentVelocity * (Time.fixedDeltaTime);
 
         if (CurrentRail)//constrain position onto rail
         {
@@ -132,7 +132,7 @@ public class trainscript : MonoBehaviour
             transform.position += CurrentRail.GetConstraintNormalDirection() * TrainHeightOverRail;
 
             UnityEngine.Debug.Log("Train velocity is " + CurrentVelocity.magnitude);
-            UnityEngine.Debug.Log("time.delta time is " + Time.deltaTime);
+            UnityEngine.Debug.Log("time.fixedDeltaTime is " + Time.fixedDeltaTime);
         }
 
 
@@ -154,7 +154,7 @@ public class trainscript : MonoBehaviour
 
         if (TrainIsStuck)
         {
-            TrainStuckTimer += Time.deltaTime;
+            TrainStuckTimer += Time.fixedDeltaTime;
             if (TrainStuckTimer >= RestartAfterStuckWaitTime)
             {
                 SceneManager.ReloadScene();
