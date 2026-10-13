@@ -1915,6 +1915,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3014986417516708322, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
+      propertyPath: InitialJerk.x
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 3014986417516708322, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
+      propertyPath: InitialJerkDuration
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 3014986417516708322, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
       propertyPath: InitialAcceleration.x
       value: 20
       objectReference: {fileID: 0}
