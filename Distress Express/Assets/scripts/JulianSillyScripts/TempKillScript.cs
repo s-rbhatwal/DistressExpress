@@ -9,7 +9,8 @@ public class TempKillScript : MonoBehaviour
     {
         if(transform.position.y < m_YKillLevel)
         {
-			SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            Application.Quit();
 		}
     }
 }
