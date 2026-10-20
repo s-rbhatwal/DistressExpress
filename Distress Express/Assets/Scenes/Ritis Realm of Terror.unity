@@ -3541,21 +3541,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3014986417516708322, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
-      propertyPath: InitialJerk.x
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 3014986417516708322, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
-      propertyPath: InitialJerkDuration
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3014986417516708322, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
-      propertyPath: TrainHeightOverRail
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3014986417516708322, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
-      propertyPath: InitialAcceleration.x
-      value: 15
-      objectReference: {fileID: 0}
+      propertyPath: ExplosionEffect
+      value: 
+      objectReference: {fileID: 1339465023030006538, guid: 22d12b5bc0e683c46ac1c48e90805ecb, type: 3}
     - target: {fileID: 5723079360496636058, guid: a2ca8daf7b604af4cac570728203a1c5, type: 3}
       propertyPath: m_Name
       value: Train

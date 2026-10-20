@@ -1041,12 +1041,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc763d0310f1c1744a7d5436ad449260, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InitialAcceleration: {x: 30, y: 0, z: 0}
+  InitialJerk: {x: 4, y: 0, z: 0}
+  InitialJerkDuration: 2
   InitialGravityAcceleration: {x: 0, y: -10, z: 0}
   TrainHeightOverRail: 1
+  MaxAllowedCurveVelSquared: 25
   CollisionCheckTargetLayer:
     serializedVersion: 2
     m_Bits: 1
+  RestartAfterStuckWaitTime: 2
+  ExplosionEffect: {fileID: 1339465023030006538, guid: 22d12b5bc0e683c46ac1c48e90805ecb, type: 3}
+  CrashWaitResetTime: 3
+  TrainArtModel: {fileID: 1907441583922029900}
 --- !u!114 &1661180152101530079
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1522,5 +1528,10 @@ PrefabInstance:
 --- !u!4 &1239414239681806326 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0db8ae1f2d7087b409e3e5d1471b9474, type: 3}
+  m_PrefabInstance: {fileID: 1637605825171560477}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1907441583922029900 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 0db8ae1f2d7087b409e3e5d1471b9474, type: 3}
   m_PrefabInstance: {fileID: 1637605825171560477}
   m_PrefabAsset: {fileID: 0}

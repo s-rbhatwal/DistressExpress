@@ -10,6 +10,7 @@ public class trainscript : MonoBehaviour
     public float InitialJerkDuration;
     public Vector3 InitialGravityAcceleration;
 
+
     motiontransformer CurrentRail = null;
     DebugLoadScene SceneManager;
     Vector3 CurrentJerk;
@@ -29,6 +30,11 @@ public class trainscript : MonoBehaviour
     float TrainStuckTimer = 0.0f;
     bool InstaneousAccelerationThisFrame = false;
     Vector3 InstantaneousAcceleration;
+    public GameObject ExplosionEffect;
+    public float CrashWaitResetTime = 3.0f;
+    float TimeSinceCrashed = 0.0f;
+    bool IsCrashed = false;
+    public GameObject TrainArtModel;
 
     // Start is called before the first frame update
     void Start()
@@ -53,6 +59,15 @@ public class trainscript : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (IsCrashed)
+        {
+            TimeSinceCrashed += Time.fixedDeltaTime;
+            if(TimeSinceCrashed >= CrashWaitResetTime) 
+            {
+                SceneManager.ReloadScene();
+            }
+            return;
+        }
         if (ShouldTrainBeUnconstrained())
         {
             //UnityEngine.Debug.Log("train currently derailed");
@@ -74,8 +89,8 @@ public class trainscript : MonoBehaviour
         if (InstaneousAccelerationThisFrame)
         {
             Vector3 newvelocity = CurrentVelocity + InstantaneousAcceleration;
-            if (Vector3.Dot(newvelocity, CurrentVelocity)< 0)//this checks if the instanteous velocity reverses the train direction
-            { 
+            if (Vector3.Dot(newvelocity, CurrentVelocity) < 0)//this checks if the instanteous velocity reverses the train direction
+            {
                 //just dont let the train reverse lmao
                 newvelocity = Vector3.zero;
             }
@@ -94,7 +109,7 @@ public class trainscript : MonoBehaviour
 
                 case TileType.Radial:
                     Vector3 UnitVecCircleCenterToTrain = Vector3.Normalize(transform.position - CurrentRail.GetCircleCenter());
-                    float VelocityInRadiusDir  = Vector3.Dot(UnitVecCircleCenterToTrain, CurrentVelocity);
+                    float VelocityInRadiusDir = Vector3.Dot(UnitVecCircleCenterToTrain, CurrentVelocity);
                     CurrentVelocity -= (VelocityInRadiusDir * UnitVecCircleCenterToTrain);
                     float VelocityInNormalDir = Vector3.Dot(CurrentRail.GetConstraintNormalDirection(), CurrentVelocity);
                     CurrentVelocity -= (VelocityInNormalDir * CurrentRail.GetConstraintNormalDirection());
@@ -133,12 +148,12 @@ public class trainscript : MonoBehaviour
             transform.position += CurrentRail.GetConstraintNormalDirection() * TrainHeightOverRail;
 
             UnityEngine.Debug.Log("Train velocity is " + CurrentVelocity.magnitude);
-          //  UnityEngine.Debug.Log("time.fixedDeltaTime is " + Time.fixedDeltaTime);
+            //  UnityEngine.Debug.Log("time.fixedDeltaTime is " + Time.fixedDeltaTime);
         }
 
 
         float almost_zero = 1E-3f;// 1 * 10 ^ -3
-        if (CurrentRail && CurrentVelocity.sqrMagnitude <= almost_zero) 
+        if (CurrentRail && CurrentVelocity.sqrMagnitude <= almost_zero)
         {
             if (!TrainIsStuck)
             {
@@ -147,7 +162,7 @@ public class trainscript : MonoBehaviour
             }
             transform.forward = CurrentRail.GetConstraintForwardDirection();
         }
-        else 
+        else
         {
             TrainIsStuck = false;
             transform.forward = Vector3.Normalize(CurrentVelocity);
@@ -179,7 +194,7 @@ public class trainscript : MonoBehaviour
         {
             return true;
         }
-        else 
+        else
         {
             return false;
         }
@@ -210,5 +225,17 @@ public class trainscript : MonoBehaviour
     public bool IsTrainOnThisRail(motiontransformer rail)
     {
         return CurrentRail == rail;
+    }
+
+    public void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "CrashesTrain")
+        {
+            TrainArtModel.SetActive(false);
+            GameObject Explosion = Instantiate(ExplosionEffect);
+            Explosion.transform.parent = null;
+            Explosion.transform.position = transform.position;
+            IsCrashed = true;
+        }
     }
 }
