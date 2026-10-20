@@ -21,6 +21,7 @@ public class trainscript : MonoBehaviour
     float TimeSinceCurrentJerkStarted = 0;
     float CurrentJerkDuration = 0;
     public float TrainHeightOverRail = 0;
+    public float MaxAllowedCurveVelSquared = 25;
     BoxCollider TrainCollider;
     public LayerMask CollisionCheckTargetLayer;
     public float RestartAfterStuckWaitTime = 2.0f;
@@ -132,7 +133,7 @@ public class trainscript : MonoBehaviour
             transform.position += CurrentRail.GetConstraintNormalDirection() * TrainHeightOverRail;
 
             UnityEngine.Debug.Log("Train velocity is " + CurrentVelocity.magnitude);
-            UnityEngine.Debug.Log("time.fixedDeltaTime is " + Time.fixedDeltaTime);
+          //  UnityEngine.Debug.Log("time.fixedDeltaTime is " + Time.fixedDeltaTime);
         }
 
 

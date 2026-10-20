@@ -144,7 +144,7 @@ public class motiontransformer : MonoBehaviour
                     {
                         if (DebugPrintCollisionInfo)
                         {
-                            UnityEngine.Debug.Log("Train colliding with this sphere");
+                            //UnityEngine.Debug.Log("Train colliding with this sphere");
                         }
                         Vector3 CircleCenterToTrain = FoundTrain.transform.position - GetCircleCenter();
                         if ((Vector3.Dot(CircleCenterToTrain, GetConstraintForwardDirection()) >= 0) && (Vector3.Dot(CircleCenterToTrain, ConstraintRightDirection) >= 0))
@@ -152,7 +152,16 @@ public class motiontransformer : MonoBehaviour
                             ReturnFoundTrain = col.gameObject.GetComponent<trainscript>();
                             if (DebugPrintCollisionInfo)
                             {
-                                UnityEngine.Debug.Log("Train colliding with this curved rail");
+                                float VelOnCurve = Vector3.SqrMagnitude(ReturnFoundTrain.GetCurrentVelocity());
+                                if (VelOnCurve > ReturnFoundTrain.MaxAllowedCurveVelSquared)
+                                {
+                                    UnityEngine.Debug.Log("Curve derail due to max curve speed!");
+                                    ReturnFoundTrain = null;// the train is moving faster than allowed on the curve- so consider this a non collision, by setting this to null
+                                }
+                                else
+                                { 
+                                    UnityEngine.Debug.Log("Train colliding with this curved rail");
+                                }
                             }
                         }
                         break;
